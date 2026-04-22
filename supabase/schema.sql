@@ -11,9 +11,12 @@ create table if not exists boards (
   id uuid primary key default gen_random_uuid(),
   title text not null,
   owner_id uuid not null references profiles(id) on delete cascade,
+  status text not null default 'current' check (status in ('past','current','upcoming')),
   created_at timestamptz not null default now()
 );
+alter table boards add column if not exists status text not null default 'current' check (status in ('past','current','upcoming'));
 create index if not exists boards_created_at on boards(created_at desc);
+create index if not exists boards_status_created on boards(status, created_at desc);
 
 create table if not exists board_events (
   id uuid primary key default gen_random_uuid(),

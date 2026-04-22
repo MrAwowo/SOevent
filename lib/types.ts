@@ -34,10 +34,13 @@ export interface Profile {
   created_at: string;
 }
 
+export type BoardStatus = 'past' | 'current' | 'upcoming';
+
 export interface Board {
   id: string;
   title: string;
   owner_id: string;
+  status: BoardStatus;
   created_at: string;
 }
 

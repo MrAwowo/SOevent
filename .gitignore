@@ -10,3 +10,5 @@ next-env.d.ts.bak
 tsconfig.tsbuildinfo
 *.tsbuildinfo
 supabase/.temp/
+
+.vercel

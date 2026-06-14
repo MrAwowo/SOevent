@@ -40,18 +40,18 @@ export default function ActivityFeed({
 
   return (
     <section className="flex-1 overflow-y-auto p-4">
-      <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+      <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
         Activity
       </h2>
       {recent.length === 0 ? (
-        <p className="text-xs text-neutral-400">No activity yet.</p>
+        <p className="text-xs text-neutral-400 dark:text-neutral-500">No activity yet.</p>
       ) : (
         <ul className="space-y-1.5">
           {recent.map((e) => {
             const author = profiles.get(e.user_id);
             return (
-              <li key={e.id} className="text-xs leading-snug text-neutral-700">
-                <span className="font-medium text-neutral-900">
+              <li key={e.id} className="text-xs leading-snug text-neutral-700 dark:text-neutral-300">
+                <span className="font-medium text-neutral-900 dark:text-neutral-100">
                   @{author?.github_username ?? 'unknown'}
                 </span>{' '}
                 {VERB[e.type]}{' '}

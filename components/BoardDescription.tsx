@@ -29,15 +29,15 @@ export default function BoardDescription({
   };
 
   return (
-    <div className="border-t border-neutral-200 p-3">
+    <div className="border-t border-neutral-200 p-3 dark:border-neutral-800">
       <div className="mb-2 flex items-center justify-between">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
           About this event
         </h2>
         {isOwner && !editing && (
           <button
             onClick={() => setEditing(true)}
-            className="text-xs text-neutral-500 hover:underline"
+            className="text-xs text-neutral-500 hover:underline dark:text-neutral-400"
           >
             Edit
           </button>
@@ -51,13 +51,13 @@ export default function BoardDescription({
             onChange={(e) => setValue(e.target.value)}
             rows={4}
             placeholder="Agenda, links, context…"
-            className="w-full rounded-md border border-neutral-300 bg-white p-2 text-xs focus:border-neutral-500 focus:outline-none"
+            className="w-full rounded-md border border-neutral-300 bg-white p-2 text-xs focus:border-neutral-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
           />
           <div className="mt-1 flex gap-2">
             <button
               onClick={save}
               disabled={saving}
-              className="rounded-md bg-neutral-900 px-2.5 py-1 text-xs text-white hover:bg-neutral-800 disabled:opacity-50"
+              className="rounded-md bg-neutral-900 px-2.5 py-1 text-xs text-white hover:bg-neutral-800 disabled:opacity-50 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-200"
             >
               {saving ? 'Saving…' : 'Save'}
             </button>
@@ -66,16 +66,16 @@ export default function BoardDescription({
                 setValue(board.description ?? '');
                 setEditing(false);
               }}
-              className="rounded-md border border-neutral-300 px-2.5 py-1 text-xs hover:bg-neutral-50"
+              className="rounded-md border border-neutral-300 px-2.5 py-1 text-xs hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
             >
               Cancel
             </button>
           </div>
         </div>
       ) : value ? (
-        <p className="whitespace-pre-wrap text-xs text-neutral-700">{value}</p>
+        <p className="whitespace-pre-wrap text-xs text-neutral-700 dark:text-neutral-300">{value}</p>
       ) : (
-        <p className="text-xs text-neutral-400">
+        <p className="text-xs text-neutral-400 dark:text-neutral-500">
           {isOwner ? 'Add an agenda or context for this event.' : 'No description.'}
         </p>
       )}

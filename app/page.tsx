@@ -4,15 +4,16 @@ import SignInButton from '@/components/SignInButton';
 import SignOutButton from '@/components/SignOutButton';
 import { createBoard } from '@/app/actions';
 import EventAlerts from '@/components/EventAlerts';
+import ThemeToggle from '@/components/ThemeToggle';
 import { deriveStatus } from '@/lib/board-status';
 import type { Board, BoardStatus } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
 const SECTIONS: Array<{ key: BoardStatus; title: string; pillClass: string }> = [
-  { key: 'upcoming', title: 'Coming up', pillClass: 'bg-blue-100 text-blue-800' },
-  { key: 'current', title: 'On the works', pillClass: 'bg-amber-100 text-amber-800' },
-  { key: 'past', title: 'Past events', pillClass: 'bg-neutral-200 text-neutral-700' },
+  { key: 'upcoming', title: 'Coming up', pillClass: 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300' },
+  { key: 'current', title: 'On the works', pillClass: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300' },
+  { key: 'past', title: 'Past events', pillClass: 'bg-neutral-200 text-neutral-700 dark:bg-neutral-700 dark:text-neutral-300' },
 ];
 
 export default async function Home({
@@ -43,33 +44,39 @@ export default async function Home({
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-12">
-      <header className="flex items-center justify-between">
+      <header className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">SOevent</h1>
-          <p className="text-sm text-neutral-600">
+          <h1 className="text-3xl font-semibold tracking-tight">
+            Smooth Operators — Inner Circle Dashboard
+          </h1>
+          <p className="text-sm text-neutral-600 dark:text-neutral-400">
             Event-sourced collaborative whiteboards.
           </p>
         </div>
         {user ? (
           <div className="flex items-center gap-3">
-            <Link href="/calendar" className="text-sm text-neutral-700 hover:underline">
+            <Link href="/calendar" className="text-sm text-neutral-700 hover:underline dark:text-neutral-300">
               Calendar
             </Link>
             <Link
               href={`/u/${user.user_metadata?.user_name ?? user.user_metadata?.preferred_username ?? ''}`}
-              className="text-sm text-neutral-700 hover:underline"
+              className="text-sm text-neutral-700 hover:underline dark:text-neutral-300"
             >
               @{user.user_metadata?.user_name ?? user.user_metadata?.preferred_username ?? 'you'}
             </Link>
+            <ThemeToggle />
             <SignOutButton />
           </div>
         ) : (
-          <SignInButton />
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <SignInButton />
+          </div>
         )}
       </header>
 
       {sp.error && (
-        <div className="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <div className="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/50 dark:text-red-300">
           {sp.error}
         </div>
       )}
@@ -81,39 +88,39 @@ export default async function Home({
           <h2 className="text-lg font-medium">New event</h2>
           <form action={createBoard} className="mt-3 flex flex-wrap items-end gap-2">
             <label className="flex-1 min-w-[240px]">
-              <span className="mb-1 block text-xs text-neutral-500">Title</span>
+              <span className="mb-1 block text-xs text-neutral-500 dark:text-neutral-400">Title</span>
               <input
                 name="title"
                 required
                 maxLength={80}
                 placeholder="Event / board title"
-                className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-neutral-500 focus:outline-none"
+                className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-neutral-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:focus:border-neutral-400"
               />
             </label>
             <label>
-              <span className="mb-1 block text-xs text-neutral-500">Date</span>
+              <span className="mb-1 block text-xs text-neutral-500 dark:text-neutral-400">Date</span>
               <input
                 name="starts_at"
                 type="date"
-                className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-neutral-500 focus:outline-none"
+                className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-neutral-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:focus:border-neutral-400"
               />
             </label>
             <label>
-              <span className="mb-1 block text-xs text-neutral-500">End (optional)</span>
+              <span className="mb-1 block text-xs text-neutral-500 dark:text-neutral-400">End (optional)</span>
               <input
                 name="ends_at"
                 type="date"
-                className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-neutral-500 focus:outline-none"
+                className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-neutral-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:focus:border-neutral-400"
               />
             </label>
             <button
               type="submit"
-              className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800"
+              className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-200"
             >
               Create
             </button>
           </form>
-          <p className="mt-2 text-xs text-neutral-500">
+          <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
             Leave the date empty for an undated board. Dated events appear on the{' '}
             <Link href="/calendar" className="underline">calendar</Link> and move between
             sections automatically.
@@ -132,9 +139,9 @@ export default async function Home({
                 {grouped[key].length}
               </span>
             </div>
-            <ul className="divide-y divide-neutral-200 rounded-md border border-neutral-200 bg-white">
+            <ul className="divide-y divide-neutral-200 rounded-md border border-neutral-200 bg-white dark:divide-neutral-800 dark:border-neutral-800 dark:bg-neutral-900">
               {grouped[key].length === 0 && (
-                <li className="px-4 py-6 text-sm text-neutral-400">
+                <li className="px-4 py-6 text-sm text-neutral-400 dark:text-neutral-500">
                   Nothing {title.toLowerCase()} yet.
                 </li>
               )}
@@ -142,10 +149,10 @@ export default async function Home({
                 <li key={b.id}>
                   <Link
                     href={`/board/${b.id}`}
-                    className="flex items-center justify-between px-4 py-3 hover:bg-neutral-50"
+                    className="flex items-center justify-between px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-800"
                   >
                     <span className="font-medium">{b.title}</span>
-                    <span className="text-xs text-neutral-500">
+                    <span className="text-xs text-neutral-500 dark:text-neutral-400">
                       {b.starts_at
                         ? new Date(b.starts_at).toLocaleDateString()
                         : new Date(b.created_at).toLocaleDateString()}
@@ -159,7 +166,7 @@ export default async function Home({
       </div>
 
       {!user && (
-        <p className="mt-10 text-sm text-neutral-600">
+        <p className="mt-10 text-sm text-neutral-600 dark:text-neutral-400">
           Sign in with GitHub to create a board. Every contribution is attributed to
           your GitHub account and locked to a tamper-evident hash chain.
         </p>

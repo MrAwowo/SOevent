@@ -1,8 +1,17 @@
 @import "tailwindcss";
 
+/* Class-based dark mode: `dark:` utilities apply when an ancestor has `.dark`. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-canvas: #f7f6f2;
   --color-ink: #1a1a1a;
+}
+
+/* Dark palette — flips the base canvas/ink tokens used by <body> and the canvas. */
+.dark {
+  --color-canvas: #0f1115;
+  --color-ink: #e8e8ea;
 }
 
 html,

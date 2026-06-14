@@ -90,20 +90,20 @@ export default function CalendarClient({
           <div className="flex items-center gap-1">
             <button
               onClick={() => goMonth(-1)}
-              className="rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-sm hover:bg-neutral-50"
+              className="rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-sm hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700"
               aria-label="Previous month"
             >
               ←
             </button>
             <button
               onClick={() => setView({ year: now.getFullYear(), month: now.getMonth() })}
-              className="rounded-md border border-neutral-300 bg-white px-3 py-1 text-sm hover:bg-neutral-50"
+              className="rounded-md border border-neutral-300 bg-white px-3 py-1 text-sm hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700"
             >
               Today
             </button>
             <button
               onClick={() => goMonth(1)}
-              className="rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-sm hover:bg-neutral-50"
+              className="rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-sm hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700"
               aria-label="Next month"
             >
               →
@@ -111,11 +111,11 @@ export default function CalendarClient({
           </div>
         </div>
 
-        <div className="grid grid-cols-7 overflow-hidden rounded-md border border-neutral-200 bg-white">
+        <div className="grid grid-cols-7 overflow-hidden rounded-md border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900">
           {WEEKDAYS.map((d) => (
             <div
               key={d}
-              className="border-b border-neutral-200 bg-neutral-50 px-2 py-1.5 text-center text-xs font-medium text-neutral-500"
+              className="border-b border-neutral-200 bg-neutral-50 px-2 py-1.5 text-center text-xs font-medium text-neutral-500 dark:border-neutral-800 dark:bg-neutral-800/50 dark:text-neutral-400"
             >
               {d}
             </div>
@@ -130,16 +130,16 @@ export default function CalendarClient({
                 key={i}
                 onClick={() => signedIn && setSelectedDay(selectedDay === key ? null : key)}
                 className={
-                  'min-h-[92px] border-b border-r border-neutral-100 p-1 text-left align-top ' +
-                  (inMonth ? 'bg-white' : 'bg-neutral-50/60') +
-                  (signedIn ? ' hover:bg-amber-50' : ' cursor-default') +
-                  (selectedDay === key ? ' ring-2 ring-inset ring-amber-300' : '')
+                  'min-h-[92px] border-b border-r border-neutral-100 p-1 text-left align-top dark:border-neutral-800 ' +
+                  (inMonth ? 'bg-white dark:bg-neutral-900' : 'bg-neutral-50/60 dark:bg-neutral-950/40') +
+                  (signedIn ? ' hover:bg-amber-50 dark:hover:bg-neutral-800' : ' cursor-default') +
+                  (selectedDay === key ? ' ring-2 ring-inset ring-amber-300 dark:ring-amber-500' : '')
                 }
               >
                 <div
                   className={
                     'mb-1 flex h-5 w-5 items-center justify-center rounded-full text-xs ' +
-                    (isToday ? 'bg-neutral-900 text-white' : 'text-neutral-500')
+                    (isToday ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900' : 'text-neutral-500 dark:text-neutral-400')
                   }
                 >
                   {d.getDate()}
@@ -173,11 +173,11 @@ export default function CalendarClient({
         {signedIn && selectedDay && (
           <form
             action={createBoard}
-            className="mt-3 flex flex-wrap items-end gap-2 rounded-md border border-amber-200 bg-amber-50 p-3"
+            className="mt-3 flex flex-wrap items-end gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 dark:border-amber-900/50 dark:bg-amber-950/30"
           >
             <input type="hidden" name="starts_at" value={selectedDay} />
             <label className="flex-1 min-w-[220px]">
-              <span className="mb-1 block text-xs text-neutral-500">
+              <span className="mb-1 block text-xs text-neutral-500 dark:text-neutral-400">
                 New event on {selectedDay}
               </span>
               <input
@@ -186,12 +186,12 @@ export default function CalendarClient({
                 maxLength={80}
                 autoFocus
                 placeholder="Event title"
-                className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-neutral-500 focus:outline-none"
+                className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-neutral-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:focus:border-neutral-400"
               />
             </label>
             <button
               type="submit"
-              className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800"
+              className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-200"
             >
               Create
             </button>
@@ -204,7 +204,7 @@ export default function CalendarClient({
         <h2 className="mb-3 text-lg font-medium">Coming up</h2>
         <ul className="space-y-2">
           {agenda.length === 0 && (
-            <li className="rounded-md border border-neutral-200 bg-white px-3 py-4 text-sm text-neutral-400">
+            <li className="rounded-md border border-neutral-200 bg-white px-3 py-4 text-sm text-neutral-400 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-500">
               Nothing scheduled. Click a day to add an event.
             </li>
           )}
@@ -216,7 +216,7 @@ export default function CalendarClient({
               <li key={b.id}>
                 <Link
                   href={`/board/${b.id}`}
-                  className="block rounded-md border border-neutral-200 bg-white px-3 py-2 hover:bg-neutral-50"
+                  className="block rounded-md border border-neutral-200 bg-white px-3 py-2 hover:bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900 dark:hover:bg-neutral-800"
                 >
                   <div className="flex items-center justify-between gap-2">
                     <span className="truncate font-medium">{b.title}</span>
@@ -229,7 +229,7 @@ export default function CalendarClient({
                       {label}
                     </span>
                   </div>
-                  <div className="mt-0.5 text-xs text-neutral-500">
+                  <div className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
                     {new Date(b.starts_at!).toLocaleDateString(undefined, {
                       weekday: 'short',
                       month: 'short',

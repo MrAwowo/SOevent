@@ -69,7 +69,7 @@ export default async function UserPage({
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-12">
-      <Link href="/" className="text-xs text-neutral-500 hover:underline">
+      <Link href="/" className="text-xs text-neutral-500 hover:underline dark:text-neutral-400">
         ← Back home
       </Link>
 
@@ -77,7 +77,7 @@ export default async function UserPage({
         <Avatar profile={profile as Profile} size={80} link={false} />
         <div className="min-w-0">
           <h1 className="text-2xl font-semibold">@{profile.github_username}</h1>
-          <p className="mt-1 text-sm text-neutral-600">
+          <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
             {noteEvents.length} note{noteEvents.length === 1 ? '' : 's'} ·{' '}
             {events.length} total contribution{events.length === 1 ? '' : 's'} ·{' '}
             <span
@@ -97,7 +97,7 @@ export default async function UserPage({
             href={`https://github.com/${profile.github_username}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-2 inline-flex items-center gap-1 text-xs text-neutral-700 underline"
+            className="mt-2 inline-flex items-center gap-1 text-xs text-neutral-700 underline dark:text-neutral-300"
           >
             View on GitHub ↗
           </a>
@@ -105,13 +105,13 @@ export default async function UserPage({
       </header>
 
       <section className="mt-10">
-        <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+        <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
           Recent contributions
         </h2>
         {events.length === 0 ? (
-          <p className="text-sm text-neutral-500">No contributions yet.</p>
+          <p className="text-sm text-neutral-500 dark:text-neutral-400">No contributions yet.</p>
         ) : (
-          <ul className="divide-y divide-neutral-200 overflow-hidden rounded-md border border-neutral-200 bg-white">
+          <ul className="divide-y divide-neutral-200 overflow-hidden rounded-md border border-neutral-200 bg-white dark:divide-neutral-800 dark:border-neutral-800 dark:bg-neutral-900">
             {events.slice(0, 80).map((e) => {
               const score = scoreByEvent.get(e.id) ?? 0;
               const board = boardMap.get(e.board_id);
@@ -127,16 +127,16 @@ export default async function UserPage({
                 >
                   <div className="min-w-0 flex-1">
                     <div className="truncate">
-                      <span className="text-neutral-900">{VERB[e.type]}</span>
+                      <span className="text-neutral-900 dark:text-neutral-100">{VERB[e.type]}</span>
                       {preview && (
-                        <span className="text-neutral-600">
+                        <span className="text-neutral-600 dark:text-neutral-400">
                           {' '}
                           — “{preview.slice(0, 80)}
                           {preview.length > 80 ? '…' : ''}”
                         </span>
                       )}
                     </div>
-                    <div className="mt-0.5 text-xs text-neutral-500">
+                    <div className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
                       <Link
                         href={`/board/${e.board_id}`}
                         className="hover:underline"
@@ -144,7 +144,7 @@ export default async function UserPage({
                         {board?.title ?? 'Unknown board'}
                       </Link>
                       {board && (
-                        <span className="ml-1.5 rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-neutral-600">
+                        <span className="ml-1.5 rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
                           {board.status}
                         </span>
                       )}

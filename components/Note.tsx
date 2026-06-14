@@ -133,8 +133,8 @@ export default function NoteCard({
                   className="fixed inset-0 z-10"
                   onClick={() => setPickerOpen(false)}
                 />
-                <div className="absolute right-0 top-full z-20 mt-1 max-h-48 w-44 overflow-auto rounded-md border border-neutral-200 bg-white py-1 shadow-lg">
-                  <div className="px-2 py-1 text-[10px] uppercase tracking-wide text-neutral-400">
+                <div className="absolute right-0 top-full z-20 mt-1 max-h-48 w-44 overflow-auto rounded-md border border-neutral-200 bg-white py-1 shadow-lg dark:border-neutral-700 dark:bg-neutral-800">
+                  <div className="px-2 py-1 text-[10px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
                     Assign to
                   </div>
                   {note.assigneeId && (
@@ -143,7 +143,7 @@ export default function NoteCard({
                         onAssign(null);
                         setPickerOpen(false);
                       }}
-                      className="flex w-full items-center gap-2 px-2 py-1 text-left text-xs text-neutral-500 hover:bg-neutral-100"
+                      className="flex w-full items-center gap-2 px-2 py-1 text-left text-xs text-neutral-500 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-700"
                     >
                       Unassign
                     </button>
@@ -156,7 +156,7 @@ export default function NoteCard({
                         setPickerOpen(false);
                       }}
                       className={
-                        'flex w-full items-center gap-2 px-2 py-1 text-left text-xs hover:bg-neutral-100 ' +
+                        'flex w-full items-center gap-2 px-2 py-1 text-left text-xs hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-700 ' +
                         (p.id === note.assigneeId ? 'font-medium' : '')
                       }
                     >

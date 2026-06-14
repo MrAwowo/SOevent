@@ -24,6 +24,17 @@ create index if not exists boards_created_at on boards(created_at desc);
 create index if not exists boards_status_created on boards(status, created_at desc);
 create index if not exists boards_starts_at on boards(starts_at);
 
+-- Access whitelist: only GitHub usernames listed here may sign in (enforced in
+-- the OAuth callback). Stored lowercased. Manage rows via the Supabase dashboard.
+create table if not exists allowed_users (
+  github_username text primary key,
+  added_at timestamptz not null default now()
+);
+-- Seed anyone who already has a profile (so existing users aren't locked out) + the owner.
+insert into allowed_users (github_username)
+  select lower(github_username) from profiles on conflict do nothing;
+insert into allowed_users (github_username) values ('mrawowo') on conflict do nothing;
+
 create table if not exists board_events (
   id uuid primary key default gen_random_uuid(),
   board_id uuid not null references boards(id) on delete cascade,
@@ -84,6 +95,7 @@ alter table profiles          enable row level security;
 alter table boards            enable row level security;
 alter table board_events      enable row level security;
 alter table board_attachments enable row level security;
+alter table allowed_users     enable row level security;
 alter table votes             enable row level security;
 
 drop policy if exists profiles_read on profiles;
@@ -106,6 +118,11 @@ drop policy if exists events_update_self_hash on board_events;
 create policy events_read on board_events for select using (true);
 create policy events_insert_self on board_events for insert with check (auth.uid() = user_id);
 -- No UPDATE policy: events are append-only and fully immutable post-insert.
+
+drop policy if exists allowed_users_read on allowed_users;
+-- Authenticated users (incl. the OAuth callback) can read the list; writes are
+-- intentionally restricted to the dashboard / service role (no insert/update/delete policy).
+create policy allowed_users_read on allowed_users for select using (auth.role() = 'authenticated');
 
 drop policy if exists attachments_read on board_attachments;
 drop policy if exists attachments_insert_self on board_attachments;

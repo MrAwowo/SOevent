@@ -24,6 +24,25 @@ export async function GET(request: Request) {
     const meta = user.user_metadata ?? {};
     const username =
       meta.user_name ?? meta.preferred_username ?? meta.login ?? meta.name ?? 'anonymous';
+
+    // Access whitelist: only allow-listed GitHub accounts may sign in.
+    const { data: allowed } = await supabase
+      .from('allowed_users')
+      .select('github_username')
+      .eq('github_username', username.toLowerCase())
+      .maybeSingle();
+    if (!allowed) {
+      await supabase.auth.signOut();
+      return NextResponse.redirect(
+        new URL(
+          `/?error=${encodeURIComponent(
+            `@${username} isn't on the access list. Ask an admin to add your GitHub account.`,
+          )}`,
+          url.origin,
+        ),
+      );
+    }
+
     const avatar_url = meta.avatar_url ?? null;
     await supabase.from('profiles').upsert(
       { id: user.id, github_username: username, avatar_url },

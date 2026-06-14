@@ -95,25 +95,25 @@ export default function Attachments({
     supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
 
   return (
-    <div className="border-t border-neutral-200 p-3">
+    <div className="border-t border-neutral-200 p-3 dark:border-neutral-800">
       <div className="mb-2 flex items-center justify-between">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
           Files
         </h2>
         <button
           onClick={() => fileInputRef.current?.click()}
           disabled={busy}
-          className="rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs hover:bg-neutral-50 disabled:opacity-50"
+          className="rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs hover:bg-neutral-50 disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700"
         >
           {busy ? 'Uploading…' : '+ Upload'}
         </button>
         <input ref={fileInputRef} type="file" className="hidden" onChange={onPick} />
       </div>
 
-      {error && <p className="mb-2 text-xs text-red-600">{error}</p>}
+      {error && <p className="mb-2 text-xs text-red-600 dark:text-red-400">{error}</p>}
 
       {items.length === 0 ? (
-        <p className="text-xs text-neutral-400">No files yet.</p>
+        <p className="text-xs text-neutral-400 dark:text-neutral-500">No files yet.</p>
       ) : (
         <ul className="space-y-1.5">
           {items.map((a) => {
@@ -125,7 +125,7 @@ export default function Attachments({
                   href={publicUrl(a.file_path)}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex-1 truncate text-xs text-neutral-800 hover:underline"
+                  className="flex-1 truncate text-xs text-neutral-800 hover:underline dark:text-neutral-200"
                   title={a.file_name}
                 >
                   {a.file_name}

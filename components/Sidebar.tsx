@@ -30,7 +30,7 @@ export default function Sidebar({
   onStopReplay: () => void;
 }) {
   return (
-    <aside className="hidden w-80 shrink-0 flex-col overflow-y-auto border-l border-neutral-200 bg-white md:flex">
+    <aside className="hidden w-80 shrink-0 flex-col overflow-y-auto border-l border-neutral-200 bg-white md:flex dark:border-neutral-800 dark:bg-neutral-900">
       <ReplayControls
         onReplay={onReplay}
         replaying={replaying}

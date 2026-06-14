@@ -33,10 +33,10 @@ export default function ContributorBar({
           <div
             key={userId}
             title={`@${profile?.github_username ?? 'unknown'} · ${count} action${count === 1 ? '' : 's'}`}
-            className="flex items-center gap-1 rounded-full border border-neutral-200 bg-neutral-50 py-0.5 pl-0.5 pr-1.5"
+            className="flex items-center gap-1 rounded-full border border-neutral-200 bg-neutral-50 py-0.5 pl-0.5 pr-1.5 dark:border-neutral-700 dark:bg-neutral-800"
           >
             <Avatar profile={profile} size={18} />
-            <span className="font-mono text-[11px] tabular-nums text-neutral-600">{count}</span>
+            <span className="font-mono text-[11px] tabular-nums text-neutral-600 dark:text-neutral-300">{count}</span>
           </div>
         );
       })}

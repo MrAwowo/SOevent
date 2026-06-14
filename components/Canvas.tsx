@@ -146,8 +146,8 @@ export default function Canvas({
     >
       {state.notes.size === 0 && !readOnly && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <p className="text-sm text-neutral-400">
-            Press <kbd className="rounded border border-neutral-300 bg-white px-1 font-mono">N</kbd>{' '}
+          <p className="text-sm text-neutral-400 dark:text-neutral-500">
+            Press <kbd className="rounded border border-neutral-300 bg-white px-1 font-mono dark:border-neutral-600 dark:bg-neutral-800">N</kbd>{' '}
             or double-click anywhere to add a sticky note
           </p>
         </div>

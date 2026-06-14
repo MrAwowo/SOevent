@@ -78,6 +78,8 @@ export default function BoardClient({
     return m;
   });
 
+  const [focusNoteId, setFocusNoteId] = useState<string | null>(null);
+
   const [replayState, setReplayState] = useState<ReducerState | null>(null);
   const [replayProgress, setReplayProgress] = useState<{ n: number; total: number } | null>(null);
   const replayingRef = useRef(false);
@@ -211,6 +213,15 @@ export default function BoardClient({
     [supabase, board.id, me.id],
   );
 
+  const createNote = useCallback(
+    (x: number, y: number) => {
+      const id = crypto.randomUUID();
+      setFocusNoteId(id);
+      emit('create_note', { id, x, y, content: '' });
+    },
+    [emit],
+  );
+
   const vote = useCallback(
     async (eventId: string, value: 1 | -1) => {
       const current = getUserVote(stateRef.current, eventId, me.id);
@@ -303,23 +314,25 @@ export default function BoardClient({
 
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden">
-      <TopBar board={board} me={me} />
+      <TopBar board={board} me={me} state={state} profiles={profileMap} />
       <div className="flex flex-1 overflow-hidden">
         <Canvas
           state={displayState}
           profiles={profileMap}
           me={me}
           topNet={topNet}
-          onCreate={(x, y) =>
-            emit('create_note', { id: crypto.randomUUID(), x, y, content: '' })
-          }
+          autoFocusId={focusNoteId}
+          onCreate={createNote}
           onMove={(id, x, y) => emit('move_note', { id, x, y })}
           onEdit={(id, content) => emit('edit_note', { id, content })}
           onDelete={(id) => emit('delete_note', { id })}
+          onAssign={(id, assigneeId) => emit('assign_note', { id, assigneeId })}
           onVote={vote}
           readOnly={replayingRef.current}
         />
         <Sidebar
+          board={board}
+          me={me}
           state={state}
           profiles={profileMap}
           leaderboard={leaderboard}

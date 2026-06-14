@@ -10,7 +10,7 @@ function canonicalize(e: {
   prev_hash: string | null;
 }): string {
   const p = e.payload;
-  return [
+  const fields = [
     e.board_id,
     e.user_id,
     e.type,
@@ -20,7 +20,11 @@ function canonicalize(e: {
     p.content ?? '',
     e.created_at,
     e.prev_hash ?? '',
-  ].join('|');
+  ];
+  // Only events that actually carry an assignee extend the canonical string, so
+  // hashes of events written before assignment existed remain byte-identical.
+  if (p.assigneeId) fields.push(`assignee:${p.assigneeId}`);
+  return fields.join('|');
 }
 
 export async function sha256Hex(input: string): Promise<string> {

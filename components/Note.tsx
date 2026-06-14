@@ -17,10 +17,14 @@ export default function NoteCard({
   width,
   height,
   readOnly,
+  autoFocus,
+  assignee,
+  assignableProfiles,
   onDragStart,
   onEdit,
   onDelete,
   onVote,
+  onAssign,
 }: {
   note: Note;
   x: number;
@@ -33,13 +37,18 @@ export default function NoteCard({
   width: number;
   height: number;
   readOnly: boolean;
+  autoFocus?: boolean;
+  assignee?: Profile;
+  assignableProfiles: Profile[];
   onDragStart: (e: React.PointerEvent) => void;
   onEdit: (content: string) => void;
   onDelete: () => void;
   onVote: (v: 1 | -1) => void;
+  onAssign: (assigneeId: string | null) => void;
 }) {
   const contentRef = useRef<HTMLDivElement>(null);
   const [editing, setEditing] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
   const lastContentRef = useRef(note.content);
 
   useEffect(() => {
@@ -48,6 +57,15 @@ export default function NoteCard({
       lastContentRef.current = note.content;
     }
   }, [note.content, editing]);
+
+  // Focus a freshly-created note (via "N" or +) so the user can type immediately.
+  const didAutoFocus = useRef(false);
+  useEffect(() => {
+    if (autoFocus && !readOnly && !didAutoFocus.current && contentRef.current) {
+      didAutoFocus.current = true;
+      contentRef.current.focus();
+    }
+  }, [autoFocus, readOnly]);
 
   const commit = () => {
     setEditing(false);
@@ -88,12 +106,75 @@ export default function NoteCard({
             @{author?.github_username ?? 'unknown'}
           </span>
         </div>
-        <span
-          title={`event_hash: ${note.lastEventHash}\nprev_hash: ${note.prevHash ?? '(genesis)'}`}
-          className="rounded bg-yellow-50 px-1.5 py-0.5 font-mono text-[10px] tracking-tight text-neutral-600"
-        >
-          #{shortHash(note.lastEventHash) || '…'}
-        </span>
+        <div className="flex items-center gap-1">
+          {/* Assignee picker — who is responsible for this note (separate from author). */}
+          <div
+            className="relative"
+            onPointerDown={(e) => e.stopPropagation()}
+          >
+            <button
+              disabled={readOnly}
+              onClick={() => setPickerOpen((o) => !o)}
+              title={assignee ? `Assigned to @${assignee.github_username}` : 'Assign to someone'}
+              aria-label="Assign note"
+              className="flex items-center gap-0.5 rounded px-0.5 py-0.5 hover:bg-yellow-200 disabled:cursor-default disabled:hover:bg-transparent"
+            >
+              {assignee ? (
+                <Avatar profile={assignee} size={18} link={false} />
+              ) : (
+                <span className="flex h-[18px] w-[18px] items-center justify-center rounded-full border border-dashed border-neutral-400 text-[10px] text-neutral-400">
+                  +
+                </span>
+              )}
+            </button>
+            {pickerOpen && !readOnly && (
+              <>
+                <div
+                  className="fixed inset-0 z-10"
+                  onClick={() => setPickerOpen(false)}
+                />
+                <div className="absolute right-0 top-full z-20 mt-1 max-h-48 w-44 overflow-auto rounded-md border border-neutral-200 bg-white py-1 shadow-lg">
+                  <div className="px-2 py-1 text-[10px] uppercase tracking-wide text-neutral-400">
+                    Assign to
+                  </div>
+                  {note.assigneeId && (
+                    <button
+                      onClick={() => {
+                        onAssign(null);
+                        setPickerOpen(false);
+                      }}
+                      className="flex w-full items-center gap-2 px-2 py-1 text-left text-xs text-neutral-500 hover:bg-neutral-100"
+                    >
+                      Unassign
+                    </button>
+                  )}
+                  {assignableProfiles.map((p) => (
+                    <button
+                      key={p.id}
+                      onClick={() => {
+                        onAssign(p.id);
+                        setPickerOpen(false);
+                      }}
+                      className={
+                        'flex w-full items-center gap-2 px-2 py-1 text-left text-xs hover:bg-neutral-100 ' +
+                        (p.id === note.assigneeId ? 'font-medium' : '')
+                      }
+                    >
+                      <Avatar profile={p} size={16} link={false} />
+                      <span className="truncate">@{p.github_username}</span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+          <span
+            title={`event_hash: ${note.lastEventHash}\nprev_hash: ${note.prevHash ?? '(genesis)'}`}
+            className="rounded bg-yellow-50 px-1.5 py-0.5 font-mono text-[10px] tracking-tight text-neutral-600"
+          >
+            #{shortHash(note.lastEventHash) || '…'}
+          </span>
+        </div>
       </div>
       <div
         ref={contentRef}

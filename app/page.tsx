@@ -1,30 +1,13 @@
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
 import { supabaseServer } from '@/lib/supabase/server';
 import SignInButton from '@/components/SignInButton';
 import SignOutButton from '@/components/SignOutButton';
+import { createBoard } from '@/app/actions';
+import EventAlerts from '@/components/EventAlerts';
+import { deriveStatus } from '@/lib/board-status';
 import type { Board, BoardStatus } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
-
-async function createBoard(formData: FormData) {
-  'use server';
-  const title = String(formData.get('title') ?? '').trim();
-  const status = String(formData.get('status') ?? 'current') as BoardStatus;
-  if (!title) return;
-  if (!['past', 'current', 'upcoming'].includes(status)) return;
-  const supabase = await supabaseServer();
-  const { data: userData } = await supabase.auth.getUser();
-  const user = userData.user;
-  if (!user) return;
-  const { data, error } = await supabase
-    .from('boards')
-    .insert({ title, status, owner_id: user.id })
-    .select('id')
-    .single();
-  if (error || !data) return;
-  redirect(`/board/${data.id}`);
-}
 
 const SECTIONS: Array<{ key: BoardStatus; title: string; pillClass: string }> = [
   { key: 'upcoming', title: 'Coming up', pillClass: 'bg-blue-100 text-blue-800' },
@@ -48,16 +31,14 @@ export default async function Home({
     .order('created_at', { ascending: false })
     .limit(200);
 
+  const now = new Date();
   const grouped: Record<BoardStatus, Board[]> = {
     upcoming: [],
     current: [],
     past: [],
   };
   for (const b of (boards ?? []) as Board[]) {
-    const key = (['past', 'current', 'upcoming'] as const).includes(b.status as BoardStatus)
-      ? b.status
-      : 'current';
-    grouped[key as BoardStatus].push(b);
+    grouped[deriveStatus(b, now)].push(b);
   }
 
   return (
@@ -71,6 +52,9 @@ export default async function Home({
         </div>
         {user ? (
           <div className="flex items-center gap-3">
+            <Link href="/calendar" className="text-sm text-neutral-700 hover:underline">
+              Calendar
+            </Link>
             <Link
               href={`/u/${user.user_metadata?.user_name ?? user.user_metadata?.preferred_username ?? ''}`}
               className="text-sm text-neutral-700 hover:underline"
@@ -90,26 +74,38 @@ export default async function Home({
         </div>
       )}
 
+      {user && <EventAlerts boards={(boards ?? []) as Board[]} />}
+
       {user && (
         <section className="mt-10">
-          <h2 className="text-lg font-medium">New board</h2>
-          <form action={createBoard} className="mt-3 flex flex-wrap gap-2">
-            <input
-              name="title"
-              required
-              maxLength={80}
-              placeholder="Board title"
-              className="flex-1 min-w-[240px] rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-neutral-500 focus:outline-none"
-            />
-            <select
-              name="status"
-              defaultValue="current"
-              className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-neutral-500 focus:outline-none"
-            >
-              <option value="upcoming">Coming up</option>
-              <option value="current">On the works</option>
-              <option value="past">Past events</option>
-            </select>
+          <h2 className="text-lg font-medium">New event</h2>
+          <form action={createBoard} className="mt-3 flex flex-wrap items-end gap-2">
+            <label className="flex-1 min-w-[240px]">
+              <span className="mb-1 block text-xs text-neutral-500">Title</span>
+              <input
+                name="title"
+                required
+                maxLength={80}
+                placeholder="Event / board title"
+                className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-neutral-500 focus:outline-none"
+              />
+            </label>
+            <label>
+              <span className="mb-1 block text-xs text-neutral-500">Date</span>
+              <input
+                name="starts_at"
+                type="date"
+                className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-neutral-500 focus:outline-none"
+              />
+            </label>
+            <label>
+              <span className="mb-1 block text-xs text-neutral-500">End (optional)</span>
+              <input
+                name="ends_at"
+                type="date"
+                className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-neutral-500 focus:outline-none"
+              />
+            </label>
             <button
               type="submit"
               className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800"
@@ -117,6 +113,11 @@ export default async function Home({
               Create
             </button>
           </form>
+          <p className="mt-2 text-xs text-neutral-500">
+            Leave the date empty for an undated board. Dated events appear on the{' '}
+            <Link href="/calendar" className="underline">calendar</Link> and move between
+            sections automatically.
+          </p>
         </section>
       )}
 
@@ -145,7 +146,9 @@ export default async function Home({
                   >
                     <span className="font-medium">{b.title}</span>
                     <span className="text-xs text-neutral-500">
-                      {new Date(b.created_at).toLocaleDateString()}
+                      {b.starts_at
+                        ? new Date(b.starts_at).toLocaleDateString()
+                        : new Date(b.created_at).toLocaleDateString()}
                     </span>
                   </Link>
                 </li>

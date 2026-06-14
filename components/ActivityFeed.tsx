@@ -9,6 +9,7 @@ const VERB: Record<BoardEvent['type'], string> = {
   move_note: 'moved a note',
   edit_note: 'edited a note',
   delete_note: 'deleted a note',
+  assign_note: 'assigned a note',
 };
 
 function relative(ts: string, now: number): string {

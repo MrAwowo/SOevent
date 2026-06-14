@@ -1,6 +1,21 @@
-# SOevent — Event-sourced Collaborative Whiteboard
+# SOevent — Event calendar + collaborative whiteboards
 
-A hackathon-ready collaborative whiteboard. Sticky notes with GitHub-attributed authorship, live-synced via Supabase Realtime, voting + leaderboard, a live activity feed, and a replay mode that reconstructs the board from its event history. State is a fold over an append-only event log with a tamper-evident hash chain.
+A hackathon-ready event hub. Each **calendar event is a collaborative board**: sticky notes with
+GitHub-attributed authorship, live-synced via Supabase Realtime, voting + leaderboard, a live
+activity feed, and a replay mode that reconstructs the board from its event history. State is a fold
+over an append-only event log with a tamper-evident hash chain.
+
+**Features**
+
+- **Calendar** (`/calendar`) — Notion/Google-style month grid + a "Coming up" agenda with
+  countdowns. Boards get a date and auto-move between Coming up / On the works / Past.
+- **Fast notes** — press **N** (or the floating **+**) to drop a note and start typing instantly;
+  double-click the canvas still works.
+- **Who does what** — every action is attributed to a GitHub user. A contributor bar on each board
+  shows everyone active with action counts; notes can be **assigned** to a person (assignee ≠ author);
+  per-user pages live at `/u/[username]`.
+- **Files + text** — attach files (Supabase Storage) and an editable description to each event.
+- **Alerts** — in-app "coming up soon" banner + optional browser notifications (see limits below).
 
 ## Stack
 
@@ -21,7 +36,12 @@ A hackathon-ready collaborative whiteboard. Sticky notes with GitHub-attributed 
    - Authorization callback URL: `https://<project-ref>.supabase.co/auth/v1/callback` (from Supabase, not your app).
    - Paste Client ID + Client Secret into Supabase.
 4. Go to **Authentication → URL Configuration** and add every URL you sign in from (`http://localhost:3000`, `https://your-app.vercel.app`, and any Vercel preview URLs you want to allow) under **Redirect URLs**.
-5. Confirm Realtime is on: **Database → Replication → `supabase_realtime`** should list `board_events` and `votes`. `schema.sql` adds them; if they're missing, re-run the last two `alter publication` lines.
+5. Confirm Realtime is on: **Database → Replication → `supabase_realtime`** should list `board_events`, `votes`, and `board_attachments`. `schema.sql` adds them; if they're missing, re-run the `alter publication` block.
+6. **Storage bucket for file attachments:** go to **Storage → New bucket**, name it exactly `attachments`, and mark it **Public**. The storage access policies are created by `schema.sql` (the `storage.objects` policies at the bottom). Without this bucket, file upload shows a friendly error and the rest of the app still works.
+
+> **Upgrading an existing project?** Re-run the whole `supabase/schema.sql` — every change is
+> additive (`add column if not exists`, `create table if not exists`, idempotent policy/publication
+> blocks), so it's safe to run again. Then create the `attachments` bucket (step 6).
 
 ### 2. Env vars
 
@@ -64,19 +84,28 @@ Set the same two env vars in the Vercel project. The preview URL also needs to b
 app/
   auth/callback/route.ts    # OAuth exchange + profile upsert
   board/[id]/               # board page + realtime client
-  page.tsx                  # landing / board list
-components/                 # Canvas, Note, Sidebar, etc.
+  calendar/                 # month grid + "Coming up" agenda
+  actions.ts                # shared createBoard server action (date-based)
+  page.tsx                  # landing / board list (grouped by derived status)
+components/                 # Canvas, Note, Sidebar, ContributorBar,
+                            # Attachments, BoardDescription, EventAlerts, etc.
 lib/
   events.ts                 # hash chain + retry insert
   reducer.ts                # fold events → state, aggregate votes
+  board-status.ts           # derive upcoming/current/past from dates + countdowns
   supabase/                 # client + server adapters (Next 15 async cookies)
   types.ts
-supabase/schema.sql         # tables, RLS, triggers, realtime publication
+supabase/schema.sql         # tables, RLS, triggers, realtime, storage policies
 middleware.ts               # session refresh
 ```
 
 ## Known limits
 
 - Hash chain is client-computed. The `UNIQUE(board_id, prev_hash)` index prevents visible forks under concurrency, but a determined attacker with direct database access could still forge history. Good enough for a demo; not production audit evidence.
+- **Alerts are client-only.** The "coming up soon" banner and browser notifications only fire while a
+  tab is open. True background reminders (email/push when the app is closed) need a server-side
+  scheduler — e.g. a Supabase Edge Function on a cron that queries upcoming `boards.starts_at` and
+  sends via an email API (Resend/Postmark). Not implemented here; the data model (`starts_at`) already
+  supports it.
 - No presence/cursors, no sketch tool, no board deletion/permissions.
-- Mobile viewport: the sidebar is hidden below `md`.
+- Mobile viewport: the sidebar is hidden below `md` (the contributor bar, press-N, and floating + still work).

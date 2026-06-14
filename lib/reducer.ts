@@ -43,6 +43,7 @@ export function applyEvent(state: ReducerState, e: BoardEvent): ReducerState {
         y: p.y,
         content: p.content ?? '',
         authorId: e.user_id,
+        assigneeId: p.assigneeId ?? null,
         createEventId: e.id,
         createdAt: e.created_at,
         lastEventHash: e.event_hash,
@@ -65,6 +66,14 @@ export function applyEvent(state: ReducerState, e: BoardEvent): ReducerState {
       const n = state.notes.get(p.id);
       if (n && p.content != null) {
         n.content = p.content;
+        n.lastEventHash = e.event_hash;
+      }
+      break;
+    }
+    case 'assign_note': {
+      const n = state.notes.get(p.id);
+      if (n) {
+        n.assigneeId = p.assigneeId ?? null;
         n.lastEventHash = e.event_hash;
       }
       break;

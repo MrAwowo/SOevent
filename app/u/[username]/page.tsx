@@ -11,6 +11,7 @@ const VERB: Record<EventType, string> = {
   move_note: 'moved a note',
   edit_note: 'edited a note',
   delete_note: 'deleted a note',
+  assign_note: 'assigned a note',
 };
 
 export default async function UserPage({

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Profile } from '@/lib/types';
 import type { ReducerState } from '@/lib/reducer';
 import { getUserVote } from '@/lib/reducer';
@@ -14,24 +14,31 @@ export default function Canvas({
   profiles,
   me,
   topNet,
+  autoFocusId,
   onCreate,
   onMove,
   onEdit,
   onDelete,
   onVote,
+  onAssign,
   readOnly,
 }: {
   state: ReducerState;
   profiles: Map<string, Profile>;
   me: Profile;
   topNet: number;
+  autoFocusId: string | null;
   onCreate: (x: number, y: number) => void;
   onMove: (id: string, x: number, y: number) => void;
   onEdit: (id: string, content: string) => void;
   onDelete: (id: string) => void;
   onVote: (eventId: string, value: 1 | -1) => void;
+  onAssign: (id: string, assigneeId: string | null) => void;
   readOnly: boolean;
 }) {
+  const assignableProfiles = [...profiles.values()].sort((a, b) =>
+    a.github_username.localeCompare(b.github_username),
+  );
   const canvasRef = useRef<HTMLDivElement>(null);
   const [dragId, setDragId] = useState<string | null>(null);
   const dragOffsetRef = useRef<{ dx: number; dy: number }>({ dx: 0, dy: 0 });
@@ -49,6 +56,38 @@ export default function Canvas({
     },
     [onCreate, readOnly],
   );
+
+  // Create a note in the middle of the currently-visible canvas area.
+  const createAtCenter = useCallback(() => {
+    if (readOnly) return;
+    const el = canvasRef.current;
+    if (!el) return;
+    const x = Math.max(0, Math.round(el.scrollLeft + el.clientWidth / 2 - NOTE_W / 2));
+    const y = Math.max(0, Math.round(el.scrollTop + el.clientHeight / 2 - NOTE_H / 2));
+    onCreate(x, y);
+  }, [onCreate, readOnly]);
+
+  // Press "N" anywhere on the board to drop a new note (unless typing).
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'n' && e.key !== 'N') return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const t = e.target as HTMLElement | null;
+      if (
+        t &&
+        (t.isContentEditable ||
+          t.tagName === 'INPUT' ||
+          t.tagName === 'TEXTAREA' ||
+          t.tagName === 'SELECT')
+      ) {
+        return;
+      }
+      e.preventDefault();
+      createAtCenter();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [createAtCenter]);
 
   const handleDragStart = useCallback(
     (id: string, e: React.PointerEvent) => {
@@ -107,13 +146,17 @@ export default function Canvas({
     >
       {state.notes.size === 0 && !readOnly && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <p className="text-sm text-neutral-400">Double-click anywhere to add a sticky note</p>
+          <p className="text-sm text-neutral-400">
+            Press <kbd className="rounded border border-neutral-300 bg-white px-1 font-mono">N</kbd>{' '}
+            or double-click anywhere to add a sticky note
+          </p>
         </div>
       )}
       {[...state.notes.values()].map((note) => {
         const pos =
           dragId === note.id && previewPos ? previewPos : { x: note.x, y: note.y };
         const author = profiles.get(note.authorId);
+        const assignee = note.assigneeId ? profiles.get(note.assigneeId) : undefined;
         const score = state.scores.get(note.createEventId) ?? { up: 0, down: 0, net: 0 };
         const userVote = getUserVote(state, note.createEventId, me.id);
         const isTop = topNet >= 2 && score.net === topNet;
@@ -131,13 +174,27 @@ export default function Canvas({
             width={NOTE_W}
             height={NOTE_H}
             readOnly={readOnly}
+            autoFocus={note.id === autoFocusId}
+            assignee={assignee}
+            assignableProfiles={assignableProfiles}
             onDragStart={(e) => handleDragStart(note.id, e)}
             onEdit={(content) => onEdit(note.id, content)}
             onDelete={() => onDelete(note.id)}
             onVote={(v) => onVote(note.createEventId, v)}
+            onAssign={(assigneeId) => onAssign(note.id, assigneeId)}
           />
         );
       })}
+      {!readOnly && (
+        <button
+          onClick={createAtCenter}
+          title="Add note (N)"
+          aria-label="Add note"
+          className="fixed bottom-5 right-5 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-neutral-900 text-2xl leading-none text-white shadow-lg hover:bg-neutral-800 md:right-[88px]"
+        >
+          +
+        </button>
+      )}
     </div>
   );
 }

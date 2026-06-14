@@ -1,10 +1,16 @@
-export type EventType = 'create_note' | 'move_note' | 'edit_note' | 'delete_note';
+export type EventType =
+  | 'create_note'
+  | 'move_note'
+  | 'edit_note'
+  | 'delete_note'
+  | 'assign_note';
 
 export interface NotePayload {
   id: string;
   x?: number;
   y?: number;
   content?: string;
+  assigneeId?: string | null;
 }
 
 export interface BoardEvent {
@@ -41,6 +47,10 @@ export interface Board {
   title: string;
   owner_id: string;
   status: BoardStatus;
+  starts_at: string | null;
+  ends_at: string | null;
+  all_day: boolean;
+  description: string | null;
   created_at: string;
 }
 
@@ -50,6 +60,7 @@ export interface Note {
   y: number;
   content: string;
   authorId: string;
+  assigneeId: string | null;
   createEventId: string;
   createdAt: string;
   lastEventHash: string;
@@ -60,4 +71,14 @@ export interface Score {
   up: number;
   down: number;
   net: number;
+}
+
+export interface BoardAttachment {
+  id: string;
+  board_id: string;
+  user_id: string;
+  file_name: string;
+  file_path: string;
+  file_size: number | null;
+  created_at: string;
 }

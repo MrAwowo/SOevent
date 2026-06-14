@@ -2,11 +2,23 @@
 
 import Link from 'next/link';
 import type { Board, Profile } from '@/lib/types';
+import type { ReducerState } from '@/lib/reducer';
 import ShareButton from './ShareButton';
 import Avatar from './Avatar';
+import ContributorBar from './ContributorBar';
 import SignOutButton from './SignOutButton';
 
-export default function TopBar({ board, me }: { board: Board; me: Profile }) {
+export default function TopBar({
+  board,
+  me,
+  state,
+  profiles,
+}: {
+  board: Board;
+  me: Profile;
+  state: ReducerState;
+  profiles: Map<string, Profile>;
+}) {
   return (
     <header className="flex h-14 items-center justify-between border-b border-neutral-200 bg-white px-4">
       <div className="flex items-center gap-3 overflow-hidden">
@@ -17,6 +29,7 @@ export default function TopBar({ board, me }: { board: Board; me: Profile }) {
         <h1 className="truncate text-sm font-medium">{board.title}</h1>
       </div>
       <div className="flex items-center gap-2">
+        <ContributorBar state={state} profiles={profiles} />
         <ShareButton />
         <div className="flex items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-2 py-1">
           <Avatar profile={me} size={22} />

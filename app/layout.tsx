@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'SOevent — Event calendar + collaborative boards',
+  title: 'Smooth Operators — Inner Circle Dashboard',
   description:
     'Plan events on a calendar and brainstorm on collaborative boards, with every contribution attributed to a GitHub account.',
 };
